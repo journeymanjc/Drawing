@@ -12,63 +12,37 @@ import SwiftUI
  rotation transform equal to the current number??? what does this mean?
  */
 
-struct ColorCyclingCircle: View {
-	var amount = 0.0
-	var steps : Int = 100
+struct Trapazoid: Shape{
+	var insetAmount: Double
 	
-	var body: some View {
-		ZStack{
-			ForEach(0..<steps) { value in
-				Circle()
-					.inset(by: Double(value))
-					.strokeBorder(
-						LinearGradient(
-							gradient: Gradient(colors: [
-							color(for: value, brightness: 1),
-							color(for: value, brightness: 0.5)
-							]),
-							startPoint: .top,
-							endPoint: .bottom
-						),
-						lineWidth: 2
-					)
-			}
-		}
-		.drawingGroup()
+	var animatableData: Double {
+		get { insetAmount }
+		set { insetAmount = newValue }
 	}
 	
-	func color(for value: Int, brightness: Double)-> Color {
-		var targetHue = Double(value) / Double(steps) + amount
-		if targetHue > 1{
-			targetHue -= 1
-		}
-		return Color(hue: targetHue, saturation: 1, brightness: brightness)
+	func path(in rect: CGRect) -> Path {
+		var path = Path()
+		path.move(to: CGPoint(x:0, y: rect.maxY))
+		path.addLine(to: CGPoint(x: insetAmount, y: rect.minY))
+		path.addLine(to: CGPoint(x: rect.maxX - insetAmount, y: rect.minY))
+		path.addLine(to: CGPoint(x: rect.maxX, y: rect.maxY))
+		path.addLine(to: CGPoint(x: 0, y: rect.maxY))
+		return path
 	}
 }
 
 
 struct ContentView: View {
-	@State private var amount = 0.0
+	@State private var insetAmount = 0.0
 	
     var body: some View {
-		 VStack{
-			 ZStack{
-				Image("Jae")
-					 .resizable()
-					 .scaledToFit()
-					 .frame(width: 200, height: 200)
-					 .saturation(amount)
-					 .blur(radius: (1 - amount) * 20)
+		 Trapazoid(insetAmount: insetAmount)
+		 .frame(width: 200, height: 200)
+		 .onTapGesture {
+			 withAnimation {
+				 insetAmount = Double.random(in: 10...90)
 			 }
-			 .frame(width: 300, height: 300)
-			 
-			 Slider(value: $amount)
-				 .padding()
 		 }
-		 
-		 .frame(maxWidth: .infinity, maxHeight: .infinity)
-		 .background(.black)
-		 .ignoresSafeArea()
 	 }
 }
 
