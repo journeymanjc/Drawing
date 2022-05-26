@@ -21,9 +21,20 @@ struct ColorCyclingCircle: View {
 			ForEach(0..<steps) { value in
 				Circle()
 					.inset(by: Double(value))
-					.strokeBorder(color(for: value, brightness: 1), lineWidth: 2)
+					.strokeBorder(
+						LinearGradient(
+							gradient: Gradient(colors: [
+							color(for: value, brightness: 1),
+							color(for: value, brightness: 0.5)
+							]),
+							startPoint: .top,
+							endPoint: .bottom
+						),
+						lineWidth: 2
+					)
 			}
 		}
+		.drawingGroup()
 	}
 	
 	func color(for value: Int, brightness: Double)-> Color {
@@ -37,15 +48,35 @@ struct ColorCyclingCircle: View {
 
 
 struct ContentView: View {
-	@State private var colorCycle = 0.0
+	@State private var amount = 0.0
 	
     var body: some View {
 		 VStack{
-			 ColorCyclingCircle(amount: colorCycle)
-				 .frame(width: 200, height: 300)
+			 ZStack{
+				 Circle()
+					 .fill(.red)
+					 .frame(width: 200 * amount)
+					 .offset(x: -50, y: -80)
+					 .blendMode(.screen)
+				 Circle()
+					 .fill(.green)
+					 .frame(width: 200 * amount)
+					 .offset(x: 50, y: -80)
+					 .blendMode(.screen)
+				 Circle()
+					 .fill(.blue)
+					 .frame(width: 200 * amount)
+					 .blendMode(.screen)
+			 }
+			 .frame(width: 300, height: 300)
 			 
-			 Slider(value: $colorCycle)
+			 Slider(value: $amount)
+				 .padding()
 		 }
+		 
+		 .frame(maxWidth: .infinity, maxHeight: .infinity)
+		 .background(.black)
+		 .ignoresSafeArea()
 	 }
 }
 
